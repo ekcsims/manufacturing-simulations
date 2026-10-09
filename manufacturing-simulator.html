@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manufacturing Line Simulator</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f3f6fa;
+      font-family: Arial, sans-serif;
+      color: #1e293b;
+    }
+
+    .simulator {
+      max-width: 760px;
+      margin: auto;
+      padding: 28px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px #00000012;
+    }
+
+    h1 { margin: 0 0 8px; font-size: 25px; }
+    .subtitle { color: #64748b; margin-bottom: 28px; }
+
+    .line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 30px 0;
+    }
+
+    .station {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      padding: 18px 6px;
+      background: #eff6ff;
+      border: 2px solid #93c5fd;
+      border-radius: 10px;
+    }
+
+    .station:nth-of-type(2) {
+      background: #f0fdfa;
+      border-color: #5eead4;
+    }
+
+    .machine {
+      width: 60px;
+      height: 40px;
+      margin: 0 auto 12px;
+      background: #2563eb;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .machine:after {
+      content: "";
+      position: absolute;
+      bottom: 7px;
+      left: 15px;
+      width: 30px;
+      height: 6px;
+      border-radius: 3px;
+      background: #bfdbfe;
+    }
+
+    .station:nth-of-type(2) .machine {
+      background: #0d9488;
+    }
+
+    .station:last-child .machine {
+      background: #64748b;
+    }
+
+    .station strong { font-size: 13px; }
+    .arrow { font-size: 24px; color: #64748b; }
+
+    .control { margin: 26px 0; }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .result {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .result .label {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .result .number {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 8px 0;
+      color: #0f172a;
+    }
+
+    .result .unit { font-size: 13px; color: #64748b; }
+
+    .note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    button {
+      margin-top: 22px;
+      padding: 12px 22px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: #f1f5f9; }
+
+    @media(max-width: 480px) {
+      body { padding: 10px; }
+      .simulator { padding: 16px; }
+      .station { padding: 12px 3px; }
+      .machine { width: 42px; }
+      .station strong { font-size: 11px; }
+      .arrow { font-size: 15px; }
+      .result { padding: 12px; }
+      .result .number { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="simulator">
+  <h1>Manufacturing Line Simulator</h1>
+  <p class="subtitle">
+    Adjust production variables and observe how they
+    affect manufacturing performance.
+  </p>
+
+  <div class="line">
+    <div class="station">
+      <div class="machine"></div>
+      <strong>Assembly</strong>
+    </div>
+    <div class="arrow">➜</div>
+    <div class="station">
+      <div class="machine"></div>
+      <strong>Inspection</strong>
+    </div>
+    <div class="arrow">➜</div>
+    <div class="station">
+      <div class="machine"></div>
+      <strong>Packaging</strong>
+    </div>
+  </div>
+
+  <section class="control">
+    <div class="control-header">
+      <label for="speed">Machine speed</label>
+      <span id="speedValue">45 units/hour</span>
+    </div>
+    <input type="range" id="speed"
+      min="10" max="100" step="5" value="45">
+  </section>
+
+  <section class="control">
+    <div class="control-header">
+      <label for="workers">Number of workers</label>
+      <span id="workersValue">3</span>
+    </div>
+    <input type="range" id="workers"
+      min="1" max="6" step="1" value="3">
+  </section>
+
+  <section class="control">
+    <div class="control-header">
+      <label for="downtime">Machine downtime</label>
+      <span id="downtimeValue">10%</span>
+    </div>
+    <input type="range" id="downtime"
+      min="0" max="50" step="5" value="10">
+  </section>
+
+  <div class="results">
+    <div class="result">
+      <div class="label">Estimated production</div>
+      <div class="number" id="production">41</div>
+      <div class="unit">units per hour</div>
+    </div>
+
+    <div class="result">
+      <div class="label">Capacity utilization</div>
+      <div class="number" id="utilization">91%</div>
+      <div class="unit">of machine capacity</div>
+    </div>
+  </div>
+
+  <p class="note">
+    Simplified educational model: each worker supports
+    18 units per hour. Production is limited by either
+    machine speed or worker capacity, then reduced by
+    downtime. Real manufacturing systems also include
+    queues, variability, and individual machine constraints.
+  </p>
+
+  <button type="button" id="reset">↻ Reset simulation</button>
+</main>
+
+<script>
+  const speedInput = document.getElementById("speed");
+  const workersInput = document.getElementById("workers");
+  const downtimeInput = document.getElementById("downtime");
+
+  function updateSimulation() {
+    const speed = Number(speedInput.value);
+    const workers = Number(workersInput.value);
+    const downtime = Number(downtimeInput.value);
+
+    // Simplified production capacity model
+    const workerCapacity = workers * 18;
+    const capacity = Math.min(speed, workerCapacity);
+    const production = Math.round(
+      capacity * (1 - downtime / 100)
+    );
+
+    const utilization = Math.round(
+      (production / speed) * 100
+    );
+
+    document.getElementById("speedValue").textContent =
+      speed + " units/hour";
+
+    document.getElementById("workersValue").textContent =
+      workers;
+
+    document.getElementById("downtimeValue").textContent =
+      downtime + "%";
+
+    document.getElementById("production").textContent =
+      production;
+
+    document.getElementById("utilization").textContent =
+      utilization + "%";
+  }
+
+  [speedInput, workersInput, downtimeInput].forEach(
+    input => input.addEventListener("input", updateSimulation)
+  );
+
+  document.getElementById("reset").addEventListener(
+    "click", () => {
+      speedInput.value = 45;
+      workersInput.value = 3;
+      downtimeInput.value = 10;
+      updateSimulation();
+    }
+  );
+
+  updateSimulation();
+</script>
+
+</body>
+</html>
