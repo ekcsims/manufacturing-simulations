@@ -1,24 +1,475 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manufacturing Flow Lab</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EnterpriseKC | Manufacturing Flow Lab</title><meta name="theme-color" content="#173a52"><meta name="description" content="Explore bottlenecks, buffers, and throughput in an interactive three-stage manufacturing line.">
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17233b;background:#eaf0f7;--surface:#fff;--muted:#4b5d74;--soft:#eef4fb;--border:#b6c7db;--blue:#1557c0;--focus:#e66a00}*{box-sizing:border-box}body{margin:0;padding:22px}main{max-width:1080px;margin:auto;background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:0 18px 45px #1c365025}.top{background:linear-gradient(115deg,#102e59,#1557c0 70%,#127f94);color:#fff;padding:30px 32px}.eyebrow{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;color:#d5ecff}h1{margin:7px 0;font-size:clamp(1.7rem,4vw,2.7rem);letter-spacing:-.04em}.top p{max-width:740px;color:#eff7ff;margin:8px 0 0}.body{padding:24px 30px 32px}h2{font-size:1.18rem;margin:0 0 12px}p{line-height:1.55}.muted,.help{color:var(--muted)}.help{font-size:.89rem}.line-card{border:1px solid var(--border);border-radius:18px;padding:18px;background:linear-gradient(160deg,#f7fbff,#e6f1ff);overflow:hidden}.line-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.pill{font-size:.8rem;font-weight:800;border-radius:100px;padding:6px 12px;background:#e0f2fe;color:#16466d}.line{display:grid;grid-template-columns:minmax(0,1fr) minmax(45px,.7fr) minmax(0,1fr) minmax(45px,.7fr) minmax(0,1fr);gap:8px;align-items:center;padding:20px 0 12px}.station{text-align:center;min-width:0}.machine{position:relative;min-height:102px;border:2px solid #4977af;border-radius:13px;background:linear-gradient(#dbeafe,#bfdbfe);box-shadow:inset 0 -8px #a5c9ee;padding:10px 4px}.station.blocked .machine{background:#ffe2dc;border-color:#b52d27;box-shadow:inset 0 -8px #ffc0b6}.station.waiting .machine{background:#e7edf4;border-color:#7b899d;box-shadow:inset 0 -8px #d4dde8}.machine-name{display:block;font-weight:800;font-size:clamp(.7rem,1.6vw,.98rem)}.gear{font-size:2rem;display:block;line-height:1.3;color:#164d95;animation:spin 2.1s linear infinite}.station:not(.running) .gear,.frozen .gear{animation-play-state:paused}.station.blocked .gear{color:#a12b26}.station-status{display:block;font-weight:800;font-size:.78rem;margin-top:8px}.station.blocked .station-status{color:#9b211b}.belt{height:31px;position:relative;border:2px solid #576e87;border-radius:8px;background:repeating-linear-gradient(90deg,#c7d8eb 0 12px,#9fb8d4 12px 23px);overflow:hidden}.belt.active{animation:movebelt .8s linear infinite}.frozen .belt{animation-play-state:paused}.pieces{display:flex;position:absolute;inset:4px;justify-content:space-around;align-items:center}.piece{height:15px;width:12px;background:#d98a0a;border:1px solid #764504;border-radius:3px;box-shadow:1px 2px #0002}.piece[hidden]{display:none}.buffer{text-align:center;min-width:0}.buffer-label{font-size:.76rem;font-weight:700;margin-top:6px;display:block}.toggles{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:14px;border-top:1px solid #b6c7db}.toggles label{display:inline-flex;gap:8px;align-items:center;font-weight:650;font-size:.92rem;cursor:pointer}.toggles input{width:18px;height:18px;accent-color:var(--blue)}.controls{margin-top:24px}.control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.control{background:var(--soft);border:1px solid var(--border);padding:15px;border-radius:12px}.control label{font-weight:750;display:block}.control output{font-weight:800;display:block;margin:6px 0;color:var(--blue);font-variant-numeric:tabular-nums}.control input{width:100%;accent-color:var(--blue);cursor:pointer;min-height:25px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{background:var(--blue);color:#fff;border:2px solid transparent;border-radius:10px;padding:11px 18px;font-size:1rem;font-weight:750;cursor:pointer}button.secondary{background:#334b68}button:hover{filter:brightness(.92)}:focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px}.metric{background:var(--soft);border:1px solid var(--border);border-radius:13px;padding:15px}.metric span{font-size:.82rem;color:var(--muted);display:block}.metric strong{font-size:clamp(1.5rem,3vw,2rem);display:block;margin-top:4px;font-variant-numeric:tabular-nums}.explain{margin-top:18px;background:#eaf5ff;border-left:5px solid var(--blue);padding:15px 18px;border-radius:8px}.explain p{margin:5px 0}.data{margin-top:24px}table{border-collapse:collapse;width:100%;font-size:.95rem}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border)}th{background:var(--soft)}caption{text-align:left;font-weight:800;margin-bottom:10px}details{margin-top:20px}summary{cursor:pointer;font-weight:750}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.high-contrast{--muted:#1d2d45;--soft:#fff;--border:#263d5c;--blue:#003e99;--focus:#a13d00}.high-contrast .line-card{background:#fff}.high-contrast .machine{background:#dceaff}.high-contrast .station.blocked .machine{background:#ffcec4}.high-contrast .station.waiting .machine{background:#e1e6ed}.high-contrast .pill{background:#fff;border:2px solid #1b3d6c}.high-contrast .explain{background:#fff;border:2px solid #003e99;border-left-width:6px}@keyframes spin{to{transform:rotate(360deg)}}@keyframes movebelt{to{background-position:-46px 0}}.frozen .gear,.frozen .belt{animation:none!important}@media(prefers-reduced-motion:reduce){.gear,.belt{animation:none!important}}@media(max-width:760px){body{padding:8px}.body{padding:17px}.top{padding:22px}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.line{gap:3px}.machine{min-height:91px;padding:7px 2px}.gear{font-size:1.5rem}.buffer-label{font-size:.65rem}.station-status{font-size:.67rem}}@media(max-width:450px){.control-grid{grid-template-columns:1fr}.top{padding:19px}.line-card{padding:9px}.line{gap:2px}.machine-name{font-size:.67rem}.machine{min-height:85px}.gear{font-size:1.4rem}.belt{height:25px}.piece{width:7px;height:11px}th,td{padding:9px 5px;font-size:.8rem}}
-</style></head><body><main id="app"><header class="top"><div class="eyebrow">Interactive learning lab / Production systems</div><h1>Manufacturing Flow Lab</h1><p>Explore how capacity, staffing, downtime and queue limits shape a three-stage production line. Watch the line run, then review the same information in text and tables.</p></header><div class="body">
-<section class="line-card" aria-labelledby="visual-heading"><div class="line-head"><h2 id="visual-heading">Production line</h2><span class="pill" id="runLabel">Simulation running</span></div><p class="help" id="visualHelp">Parts move from Assembly to Inspection to Packaging. The conveyors show the number of parts waiting between stations.</p>
-<div class="line" aria-hidden="true"><div class="station" id="s0"><div class="machine"><span class="machine-name">Assembly</span><span class="gear">⚙</span></div><span class="station-status">Waiting</span></div><div class="buffer"><div class="belt" id="belt0"><div class="pieces" id="pieces0"></div></div><span class="buffer-label" id="b0">0 / 8</span></div><div class="station" id="s1"><div class="machine"><span class="machine-name">Inspection</span><span class="gear">⚙</span></div><span class="station-status">Waiting</span></div><div class="buffer"><div class="belt" id="belt1"><div class="pieces" id="pieces1"></div></div><span class="buffer-label" id="b1">0 / 8</span></div><div class="station" id="s2"><div class="machine"><span class="machine-name">Packaging</span><span class="gear">⚙</span></div><span class="station-status">Waiting</span></div></div>
-<div class="toggles"><label><input id="motion" type="checkbox" checked> Animate conveyor and machines</label><label><input id="contrast" type="checkbox"> Higher contrast</label><label><input id="showTable" type="checkbox" checked> Show station details</label></div></section>
-<section class="controls" aria-labelledby="controls-heading"><h2 id="controls-heading">Adjust the production line</h2><p class="help">Use the arrow keys to change a selected slider. The animation is optional; all production results are also available below.</p><div class="control-grid">
-<div class="control"><label for="assembly">Assembly capacity</label><output id="assemblyV" for="assembly">70 units/hr</output><input id="assembly" type="range" min="10" max="100" step="5" value="70"></div>
-<div class="control"><label for="inspection">Inspection capacity</label><output id="inspectionV" for="inspection">35 units/hr</output><input id="inspection" type="range" min="10" max="100" step="5" value="35"></div>
-<div class="control"><label for="packaging">Packaging capacity</label><output id="packagingV" for="packaging">55 units/hr</output><input id="packaging" type="range" min="10" max="100" step="5" value="55"></div>
-<div class="control"><label for="bufferSize">Buffer capacity</label><output id="bufferSizeV" for="bufferSize">8 units</output><input id="bufferSize" type="range" min="2" max="20" step="1" value="8"></div>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17233b;background:#f1f3f4;--surface:#fff;--muted:#52616c;--soft:#f5f9f9;--border:#c8d8d9;--blue:#286b91;--focus:#b34c00;--brand-navy:#265b79;--brand-blue:#4f8db4;--brand-teal:#39a8a4;--brand-green:#70b66a;--brand-lime:#b8df69}*{box-sizing:border-box}body{margin:0;padding:22px}main{max-width:1080px;margin:auto;background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:0 18px 45px #1c365025}.top{background:linear-gradient(110deg,#286c91,#4f8db4 57%,#52a98d 100%);color:#fff;padding:30px 32px}.eyebrow{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;color:#d5ecff}h1{margin:7px 0;font-size:clamp(1.7rem,4vw,2.7rem);letter-spacing:-.04em}.top p{max-width:740px;color:#eff7ff;margin:8px 0 0}.body{padding:24px 30px 32px}h2{font-size:1.18rem;margin:0 0 12px}p{line-height:1.55}.muted,.help{color:var(--muted)}.help{font-size:.89rem}.line-card{border:1px solid var(--border);border-radius:18px;padding:18px;background:repeating-linear-gradient(160deg,transparent 0 83px,#4f8db40c 84px 85px),repeating-linear-gradient(90deg,transparent 0 85px,#4f8db40b 86px 87px),linear-gradient(160deg,#ffffff,#f0f8f5);overflow:hidden}.brand-lockup{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.top{background:linear-gradient(115deg,#102c43 0%,#17465e 57%,#206653 100%);color:#fff}.top .eyebrow{color:#c6f3e0}.top p{color:#e0f2f5}.brand-logo{display:block;width:154px;max-width:100%;height:auto;background:transparent;padding:0;border-radius:0;filter:drop-shadow(0 2px 2px #103d5218)}.brand-copy{flex:1;min-width:220px}.line-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.pill{font-size:.8rem;font-weight:800;border-radius:100px;padding:6px 12px;background:#e0f2fe;color:#16466d}.line{display:grid;grid-template-columns:minmax(0,1fr) minmax(45px,.7fr) minmax(0,1fr) minmax(45px,.7fr) minmax(0,1fr);gap:8px;align-items:center;padding:20px 0 12px}.station{text-align:center;min-width:0}.machine{position:relative;min-height:102px;border:2px solid #6ca5ac;border-radius:13px;background:linear-gradient(#ffffff,#e6f5f0);box-shadow:inset 0 -6px #d0e8df;padding:10px 4px}.station.blocked .machine{background:#ffe2dc;border-color:#b52d27;box-shadow:inset 0 -8px #ffc0b6}.station.waiting .machine{background:#e7edf4;border-color:#7b899d;box-shadow:inset 0 -8px #d4dde8}.machine-name{display:block;font-weight:800;font-size:clamp(.7rem,1.6vw,.98rem)}.gear{font-size:2rem;display:block;line-height:1.3;color:#347e9c;animation:spin 3.5s linear infinite}.machine-icon{display:block;width:min(80px,100%);height:65px;margin:3px auto 0;animation:machine-pulse 4s ease-in-out infinite}.station:not(.running) .machine-icon,.frozen .machine-icon{animation-play-state:paused}.station.blocked .gear{color:#a12b26}.station-status{display:block;font-weight:800;font-size:.78rem;margin-top:8px}.station.blocked .station-status{color:#9b211b}.belt{height:31px;position:relative;border:2px solid #576e87;border-radius:8px;background:repeating-linear-gradient(90deg,#d6e8e4 0 12px,#a8d1cb 12px 23px);overflow:hidden}.belt.active{animation:movebelt 2.4s linear infinite}.frozen .belt{animation-play-state:paused}.pieces{display:flex;position:absolute;inset:4px;justify-content:space-around;align-items:center}.piece{height:15px;width:12px;background:#8dc76b;border:1px solid #377a67;border-radius:3px;box-shadow:1px 2px #0002}.piece[hidden]{display:none}.buffer{text-align:center;min-width:0}.buffer-label{font-size:.76rem;font-weight:700;margin-top:6px;display:block}.toggles{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:14px;border-top:1px solid #b6c7db}.toggles label{display:inline-flex;gap:8px;align-items:center;font-weight:650;font-size:.92rem;cursor:pointer}.toggles input{width:18px;height:18px;accent-color:var(--blue)}.controls{margin-top:24px}.control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.control{background:var(--soft);border:1px solid var(--border);padding:15px;border-radius:12px}.control label{font-weight:750;display:block}.control output{font-weight:800;display:block;margin:6px 0;color:var(--blue);font-variant-numeric:tabular-nums}.control input{width:100%;accent-color:var(--blue);cursor:pointer;min-height:25px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{background:var(--blue);color:#fff;border:2px solid transparent;border-radius:10px;padding:11px 18px;font-size:1rem;font-weight:750;cursor:pointer}button.secondary{background:#334b68}button:hover{filter:brightness(.92)}:focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px}.metric{background:var(--soft);border:1px solid var(--border);border-radius:13px;padding:15px}.metric span{font-size:.82rem;color:var(--muted);display:block}.metric strong{font-size:clamp(1.5rem,3vw,2rem);display:block;margin-top:4px;font-variant-numeric:tabular-nums}.explain{margin-top:18px;background:#f0f9f5;border-left:5px solid var(--brand-green);padding:15px 18px;border-radius:8px}.explain p{margin:5px 0}.data{margin-top:24px}table{border-collapse:collapse;width:100%;font-size:.95rem}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border)}th{background:var(--soft)}caption{text-align:left;font-weight:800;margin-bottom:10px}details{margin-top:20px}summary{cursor:pointer;font-weight:750}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.high-contrast{--muted:#1d2d45;--soft:#fff;--border:#263d5c;--blue:#003e99;--focus:#a13d00}.high-contrast .line-card{background:#fff}.high-contrast .machine{background:#dceaff}.high-contrast .station.blocked .machine{background:#ffcec4}.high-contrast .station.waiting .machine{background:#e1e6ed}.high-contrast .pill{background:#fff;border:2px solid #1b3d6c}.high-contrast .explain{background:#fff;border:2px solid #003e99;border-left-width:6px}@keyframes machine-pulse{50%{transform:translateY(-3px);opacity:.75}}@keyframes movebelt{to{background-position:-46px 0}}.frozen .machine-icon,.frozen .belt{animation:none!important}a{color:var(--blue);text-underline-offset:3px}details li{margin:.45rem 0}@media(prefers-reduced-motion:reduce){.machine-icon,.belt.active{animation:none!important}*{scroll-behavior:auto!important}}@media(max-width:760px){body{padding:8px}.body{padding:17px}.top{padding:22px}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.line{gap:3px}.machine{min-height:91px;padding:7px 2px}.machine-icon{height:57px}.buffer-label{font-size:.65rem}.station-status{font-size:.67rem}}@media(max-width:450px){.control-grid{grid-template-columns:1fr}.top{padding:19px}.line-card{padding:9px}.line{gap:2px}.machine-name{font-size:.67rem}.machine{min-height:85px}.machine-icon{height:52px}.belt{height:25px}.piece{width:7px;height:11px}th,td{padding:9px 5px;font-size:.8rem}}
+
+/* Station-specific activity: animations play only when the station is running. */
+.machine-icon{animation:none}
+.assembly-rotor{transform-origin:40px 46px}
+.station.running .assembly-rotor{animation:rotor-turn 2.2s linear infinite}
+.frozen .assembly-rotor{animation-play-state:paused!important}
+/* Inspection: no mark when idle; a clearly visible check appears and disappears during work. */
+.inspect-check{opacity:0;transform-box:fill-box;transform-origin:center}
+.station.running .inspect-check{animation:inspection-check 4.4s ease-in-out infinite}
+@keyframes inspection-check{
+  0%,12%{opacity:0;transform:scale(.55)}
+  23%,66%{opacity:1;transform:scale(1)}
+  78%,100%{opacity:0;transform:scale(.55)}
+}
+.frozen .inspect-check{animation:none!important;opacity:0!important}
+@media(prefers-reduced-motion:reduce){
+  .station.running .inspect-check{animation:none!important;opacity:1;transform:none}
+}
+
+/* Packaging alternates between closed and open while actively processing.
+   Waiting, blocked, paused, and reduced-motion modes show a closed carton. */
+.package-art{width:min(80px,100%);height:65px;overflow:visible}
+.package-closed{opacity:1}
+.package-open{opacity:0}
+.station.running .package-closed{animation:carton-closed 4.8s steps(1,end) infinite}
+.station.running .package-open{animation:carton-open 4.8s steps(1,end) infinite}
+.frozen .package-closed{animation:none!important;opacity:1!important}
+.frozen .package-open{animation:none!important;opacity:0!important}
+@keyframes carton-closed{0%,49.99%,100%{opacity:1}50%,99.99%{opacity:0}}
+@keyframes carton-open{0%,49.99%,100%{opacity:0}50%,99.99%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.package-closed,.package-open{animation:none!important}.package-closed{opacity:1!important}.package-open{opacity:0!important}}
+@keyframes rotor-turn{to{transform:rotate(360deg)}}
+@keyframes write-line{0%,12%{stroke-dashoffset:16}55%,82%{stroke-dashoffset:0}100%{stroke-dashoffset:16}}
+.detail-switch{margin-top:26px;padding:14px 16px;background:var(--soft);border:1px solid var(--border);border-radius:12px}
+.detail-switch label{display:inline-flex;align-items:center;gap:10px;font-weight:750;cursor:pointer}
+.detail-switch input{width:19px;height:19px;accent-color:var(--blue)}
+.data{margin-top:12px}
+#results-heading{margin-bottom:10px}
+.metrics{margin-top:0}
+.line-card{margin-top:26px}
+@media(prefers-reduced-motion:reduce){.assembly-rotor,.inspect-check,.box-lid{animation:none!important}}
+
+/* Calm, scannable layout: distinct stages, quieter secondary copy, preserved detail. */
+:root{--soft:#f7faf9;--border:#d9e5e5}
+body{background:#edf3f4}
+.body{padding:30px 34px 38px}
+.top{padding:34px 38px}
+.top p{max-width:620px;font-size:.96rem;line-height:1.55}
+.body>section,.body>.learn-more{scroll-margin-top:20px}
+h2{font-size:1.23rem;letter-spacing:-.015em;margin-bottom:14px}
+.help{font-size:.86rem;line-height:1.45;margin:0 0 15px}
+.metrics{gap:12px}
+.metric{background:#fff;border:1px solid #d8e6e5;border-radius:15px;padding:16px 17px;box-shadow:0 2px 8px #18394c08}
+.metric span{font-size:.81rem;font-weight:650}
+.metric strong{color:#173c51;letter-spacing:-.035em;margin-top:8px}
+.metric-unit{font-size:.78rem;font-weight:500;white-space:nowrap}
+.metric-note{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}
+.explain{background:#f3f9f6;border:1px solid #d5e9dd;border-left:4px solid var(--brand-green);margin-top:15px;padding:13px 17px}
+.explain strong{font-size:.88rem;color:#225e4b}
+.explain p{font-size:.88rem;line-height:1.5;margin:5px 0}
+.line-card{margin-top:30px;padding:21px 22px}
+.line-head h2{margin-bottom:0}
+.line-head{margin-bottom:12px}
+.controls{margin-top:32px;padding-top:27px;border-top:1px solid #e1e9e9}
+.control-grid{gap:11px}
+.control{background:#f8fbfa;border-color:#e0e9e7;padding:14px 15px}
+.control label{font-size:.9rem}
+.control output{font-size:.9rem;margin:7px 0 5px}
+.buttons{margin-top:18px}
+.detail-switch{margin-top:31px;background:#fff;border-color:#d8e6e5;padding:12px 14px}
+.data{overflow-x:auto}
+.data h2{margin-top:12px}
+.learn-more{margin-top:27px;border-top:1px solid #e0e8e8;padding-top:23px}
+.learn-more h2{margin-bottom:9px}
+.learn-more details{margin-top:9px;border:1px solid #dbe7e5;border-radius:11px;background:#fbfdfc;padding:13px 16px}
+.learn-more summary{font-size:.93rem;color:#234e61}
+.learn-more details p,.learn-more details li{font-size:.89rem;line-height:1.65}
+@media(max-width:760px){.body{padding:20px 18px 27px}.top{padding:25px 23px}.line-card{padding:15px 12px}.metrics{gap:9px}.metric{padding:13px}.metric strong{font-size:1.55rem}}
+@media(max-width:450px){.body{padding:17px 12px 25px}.top{padding:22px 17px}.metric{padding:12px 10px}.metric span{font-size:.75rem}.metric strong{font-size:1.43rem}.line-card{padding:11px 8px}.explain{padding:12px}.learn-more details{padding:12px}}
+
+/* Unit markers travel left to right as work progresses; the simulation owns their position. */
+.machine{position:relative}
+.in-process-unit{position:absolute;bottom:9px;left:14%;width:15px;height:16px;transform:translateX(-50%);background:#8dc76b;border:2px solid #377a67;border-radius:3px;box-shadow:1px 2px 0 #0002;opacity:0;transition:opacity .3s ease;z-index:2}
+.station.has-unit .in-process-unit{opacity:1}
+.toggles{align-items:center;gap:12px 18px;justify-content:flex-start}
+.toggles .buttons{margin:0;display:flex;gap:8px;flex-wrap:wrap;order:-1}
+.toggles button{font-size:.87rem;padding:8px 12px}
+.line-card{margin-top:0}
+.line-card + section{margin-top:26px}
+.metric strong{font-variant-numeric:tabular-nums;min-width:4ch}
+.belt.active{animation-duration:7s}
+/* Ease the pace of units and make station traversal clear without moving the machine icon. */
+.in-process-unit{bottom:-5px;will-change:left}
+/* Motion preference controls decorative machinery, not unit position updates. */
+@media(prefers-reduced-motion:reduce){.in-process-unit{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.in-process-unit{transition:none}}
+</style></head><body><main id="app"><header class="top"><div class="brand-lockup"><div class="brand-copy"><div class="eyebrow">Interactive learning lab / Production systems</div><h1>Manufacturing Flow Lab</h1><p>Explore how capacity, staffing, downtime and queue limits shape a three-stage production line. Watch the line run, then review the same information in text and tables.</p></div></div></header><div class="body">
+<section class="line-card" aria-labelledby="visual-heading"><div class="line-head"><h2 id="visual-heading">Production line</h2><span class="pill" id="runLabel">Simulation running</span></div><p class="help" id="visualHelp">Follow each part through Assembly, Inspection, and Packaging. A green square crosses each station as it is processed; belts show queued parts.</p>
+<svg aria-hidden="true" class="sr-only" width="0" height="0"><defs><linearGradient id="station-gradient" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#3489b5"/><stop offset="1" stop-color="#69b765"/></linearGradient></defs></svg><div class="line" aria-hidden="true"><div class="station" id="s0"><div class="machine"><span class="machine-name">Assembly</span><svg class="machine-icon" viewBox="0 0 80 76" aria-hidden="true" focusable="false"><g fill="none" stroke="url(#station-gradient)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M9 36h62M16 36V20h48v16M25 20V11h30v9M19 36v20h42V36M30 56V36M50 56V36"/><g class="assembly-rotor"><circle cx="40" cy="46" r="8"/><path d="M40 40v12M34 46h12"/></g></g></svg><span class="in-process-unit" aria-hidden="true"></span></div><span class="station-status">Waiting</span></div><div class="buffer"><div class="belt" id="belt0"><div class="pieces" id="pieces0"></div></div><span class="buffer-label" id="b0">0 / 12</span></div><div class="station" id="s1"><div class="machine"><span class="machine-name">Inspection</span><svg class="machine-icon" viewBox="0 0 80 76" aria-hidden="true" focusable="false"><g fill="none" stroke="url(#station-gradient)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="18" y="9" width="44" height="48" rx="5"/><path d="M27 22h25M27 31h18M27 40h12"/><g class="inspect-check"><circle cx="52" cy="46" r="9"/><path d="m48 46 3 3 6-7"/></g></g></svg><span class="in-process-unit" aria-hidden="true"></span></div><span class="station-status">Waiting</span></div><div class="buffer"><div class="belt" id="belt1"><div class="pieces" id="pieces1"></div></div><span class="buffer-label" id="b1">0 / 12</span></div><div class="station" id="s2"><div class="machine"><span class="machine-name">Packaging</span><svg class="machine-icon package-art" viewBox="0 0 80 76" aria-hidden="true" focusable="false">
+<!-- Two matching isometric poses: waiting = closed, running = open.
+     The flaps extend outward from all four rim edges, as in the supplied sketch. -->
+<g stroke="url(#station-gradient)" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round">
+  <g class="package-closed">
+    <path d="M13 28 L40 13 L67 28 L40 43 Z" fill="#f4faf7"/>
+    <path d="M13 28 L40 43 L40 68 L13 53 Z" fill="#e7f2f8"/>
+    <path d="M40 43 L67 28 L67 53 L40 68 Z" fill="#d8f0e4"/>
+    <path d="M27 20 L54 35 M40 43 L40 68" fill="none" stroke-width="1.7"/>
+  </g>
+  <g class="package-open">
+    <!-- Dark opening behind the four outward-folded flaps. -->
+    <path d="M13 28 L40 13 L67 28 L40 43 Z" fill="#b7d7d0"/>
+    <!-- Draw the box body first so all four flaps remain visible in front. -->
+    <path d="M13 28 L40 43 L40 68 L13 53 Z" fill="#e7f2f8"/>
+    <path d="M40 43 L67 28 L67 53 L40 68 Z" fill="#d8f0e4"/>
+    <path d="M40 43 V68" fill="none" stroke-width="1.7"/>
+    <!-- Rear flaps now render over the body, rather than behind it. -->
+    <path class="open-flap" d="M13 28 L40 13 L27 1 L1 18 Z" fill="#f3f9fa"/>
+    <path class="open-flap" d="M40 13 L67 28 L79 17 L53 1 Z" fill="#e4f5e9"/>
+    <!-- Front flaps render last for clear separation at the opening. -->
+    <path class="open-flap" d="M13 28 L40 43 L28 55 L1 39 Z" fill="#edf7fa"/>
+    <path class="open-flap" d="M40 43 L67 28 L79 39 L52 55 Z" fill="#e3f5eb"/>
+  </g>
+</g>
+</svg><span class="in-process-unit" aria-hidden="true"></span></div><span class="station-status">Waiting</span></div></div>
+<div class="toggles"><div class="buttons"><button id="pause" type="button">Pause simulation</button><button id="reset" type="button" class="secondary">Reset simulation</button></div><label><input id="motion" type="checkbox" checked> Animate conveyor and machines</label><label><input id="contrast" type="checkbox"> Higher contrast</label></div></section>
+<section aria-labelledby="results-heading"><h2 id="results-heading">Production results</h2><div class="metrics"><div class="metric"><span>Completed units</span><strong id="completed">0</strong></div><div class="metric"><span>Work in progress</span><strong id="wip">0</strong></div><div class="metric"><span>Projected throughput (units/hr)</span><strong id="throughput">0</strong></div><div class="metric"><span>Simulated time <small class="metric-unit">(h:mm)</small></span><strong id="elapsed" aria-label="0 hours, 0 minutes">0:00</strong></div></div><div class="explain"><strong>Line insight</strong><p id="bottleneck">Calculating production conditions.</p><p id="queueExplain">Queues are empty.</p></div><div id="announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div></section>
+
+<section class="controls" aria-labelledby="controls-heading"><div class="section-heading"><div><h2 id="controls-heading">Adjust the production line</h2><p class="help">Change a setting to see its effect on production.</p></div></div><div class="control-grid">
+<div class="control"><label for="assembly">Assembly capacity</label><output id="assemblyV" for="assembly">60 units/hr</output><input id="assembly" type="range" min="10" max="100" step="5" value="60"></div>
+<div class="control"><label for="inspection">Inspection capacity</label><output id="inspectionV" for="inspection">58 units/hr</output><input id="inspection" type="range" min="10" max="100" step="5" value="58"></div>
+<div class="control"><label for="packaging">Packaging capacity</label><output id="packagingV" for="packaging">62 units/hr</output><input id="packaging" type="range" min="10" max="100" step="5" value="62"></div>
+<div class="control"><label for="bufferSize">Buffer capacity</label><output id="bufferSizeV" for="bufferSize">12 units</output><input id="bufferSize" type="range" min="2" max="20" step="1" value="12"></div>
 <div class="control"><label for="workers">Number of workers</label><output id="workersV" for="workers">3</output><input id="workers" type="range" min="1" max="6" step="1" value="3"></div>
-<div class="control"><label for="downtime">Average downtime</label><output id="downtimeV" for="downtime">10%</output><input id="downtime" type="range" min="0" max="50" step="5" value="10"></div></div>
-<div class="buttons"><button id="pause" type="button">Pause simulation</button><button id="reset" type="button" class="secondary">Reset simulation</button></div></section>
-<section aria-labelledby="results-heading"><h2 id="results-heading" style="margin-top:26px">Production results</h2><div class="metrics"><div class="metric"><span>Completed units</span><strong id="completed">0</strong></div><div class="metric"><span>Work in progress</span><strong id="wip">0</strong></div><div class="metric"><span>Throughput (units/hr)</span><strong id="throughput">0</strong></div><div class="metric"><span>Simulated time</span><strong id="elapsed">0:00</strong></div></div><div class="explain"><strong>What's happening?</strong><p id="bottleneck">Calculating production conditions.</p><p id="queueExplain">Queues are empty.</p></div><div id="announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div></section>
-<section class="data" id="dataSection" aria-labelledby="data-heading"><h2 id="data-heading">Station details</h2><table><caption>Live station capacities, activity and queue sizes</caption><thead><tr><th scope="col">Station</th><th scope="col">Effective capacity</th><th scope="col">Status</th><th scope="col">Queue after station</th></tr></thead><tbody id="stationRows"><tr><th scope="row">Assembly</th><td id="rate0">63/hr</td><td id="status0">Waiting</td><td id="queue0">0 of 8</td></tr><tr><th scope="row">Inspection</th><td id="rate1">31.5/hr</td><td id="status1">Waiting</td><td id="queue1">0 of 8</td></tr><tr><th scope="row">Packaging</th><td id="rate2">49.5/hr</td><td id="status2">Waiting</td><td>Finished products</td></tr></tbody></table></section>
-<details><summary>How this simulation works</summary><p>Each station processes one item at a time. Three workers is the baseline staffing level; changing staffing proportionally changes all station capacities. Downtime is modeled as a reduction in effective processing rate, not as random failures. Finished items wait if the next buffer is full. The bottleneck shown is the station with the lowest effective capacity, though startup and blocking also affect actual throughput.</p><p>One real second represents one simulated minute. Throughput is calculated from completions in the most recent simulated hour (or elapsed simulated time if less than one hour). This is an instructional model, not a validated industrial forecast.</p></details>
+<div class="control"><label for="downtime">Average downtime</label><output id="downtimeV" for="downtime">0%</output><input id="downtime" type="range" min="0" max="50" step="5" value="0"></div></div>
+</section>
+<div class="detail-switch"><label><input id="showTable" type="checkbox" checked> Show station details</label></div><section class="data" id="dataSection" aria-labelledby="data-heading"><h2 id="data-heading">Station details</h2><table><caption>Live station capacities, activity and queue sizes</caption><thead><tr><th scope="col">Station</th><th scope="col">Effective capacity</th><th scope="col">Status</th><th scope="col">Queue after station</th></tr></thead><tbody id="stationRows"><tr><th scope="row">Assembly</th><td id="rate0">60/hr</td><td id="status0">Waiting</td><td id="queue0">0 of 12</td></tr><tr><th scope="row">Inspection</th><td id="rate1">58/hr</td><td id="status1">Waiting</td><td id="queue1">0 of 12</td></tr><tr><th scope="row">Packaging</th><td id="rate2">62/hr</td><td id="status2">Waiting</td><td>Finished products</td></tr></tbody></table></section>
+<div class="learn-more" aria-label="Further information"><h2>Learn more</h2><details><summary>How this simulation works</summary><p>Each station processes one item at a time. Three workers is the baseline staffing level; changing staffing proportionally changes all station capacities. Downtime is modeled as a reduction in effective processing rate, not as random failures. Finished items wait if the next buffer is full. When station capacities are close, the line is described as balanced rather than warning about a bottleneck. A station with lower capacity can become a bottleneck as queues build; actual throughput can be lower during startup or blocking. Workers are modeled as a proportional capacity multiplier across all stations, a teaching simplification rather than a labor-allocation model.</p><p>Ten real seconds represent one simulated minute, giving learners more time to observe. Projected throughput estimates the steady-state production rate from the slowest effective station capacity under the current settings. It updates immediately when station speeds, staffing, or average downtime change, and does not fluctuate with individual completions. This idealized capacity estimate assumes a continuously supplied line and does not include startup losses, transient blocking, or variability; actual completed units may differ. This is an instructional model, not a validated industrial forecast.</p></details>
+<details><summary>Research sources and model limitations</summary><p>This teaching model draws on manufacturing-systems education and lean process guidance. It illustrates single-piece flow, finite intermediate buffers, blocking, work in progress, and throughput. It does not model defects, rework, machine-specific worker assignments, transport times, or random equipment failures. Downtime is a fixed average rate reduction.</p><ul><li><a href="https://ocw.mit.edu/courses/2-852-manufacturing-systems-analysis-spring-2010/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare: Manufacturing Systems Analysis</a></li><li><a href="https://ocw.mit.edu/courses/2-854-introduction-to-manufacturing-systems-fall-2016/pages/syllabus/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare: Introduction to Manufacturing Systems</a></li><li><a href="https://www.nist.gov/mep/value-stream-mapping" target="_blank" rel="noopener noreferrer">NIST: Value Stream Mapping</a></li><li><a href="https://www.lean.org/lexicon-terms/cycle-time/" target="_blank" rel="noopener noreferrer">Lean Enterprise Institute: Cycle Time</a></li></ul></details></div>
 </div></main><script>
-(()=>{'use strict';const $=id=>document.getElementById(id),names=['Assembly','Inspection','Packaging'],keys=['assembly','inspection','packaging','bufferSize','workers','downtime'];const inputs=Object.fromEntries(keys.map(k=>[k,$(k)]));const stations=names.map((_,i)=>({node:$('s'+i),label:$('s'+i).querySelector('.station-status')}));const belts=[0,1].map(i=>{const parts=Array.from({length:5},()=>{const el=document.createElement('span');el.className='piece';$('pieces'+i).append(el);return el});return{node:$('belt'+i),label:$('b'+i),parts}});const state={queues:[0,0],work:[0,0,0],busy:[false,false,false],statuses:['waiting','waiting','waiting'],done:0,seconds:0,history:[],running:true,acc:0};let config,last=performance.now(),lastRender=0,lastAnnouncement='',prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;const motion=$('motion');motion.checked=!prefersReduced;function read(){const v=Object.fromEntries(keys.map(k=>[k,Number(inputs[k].value)]));const multiplier=v.workers/3*(1-v.downtime/100);v.rates=[v.assembly,v.inspection,v.packaging].map(n=>n*multiplier);return v}function reset(){state.queues=[0,0];state.work=[0,0,0];state.busy=[false,false,false];state.statuses=['waiting','waiting','waiting'];state.done=0;state.seconds=0;state.history=[];state.acc=0;last=performance.now();render(true);announce('Simulation reset. All queues and completed counts are zero.')}function announce(message){if(message!==lastAnnouncement){$('announcements').textContent=message;lastAnnouncement=message}}function simulate(dt){state.seconds+=dt;for(let k=2;k>=0;k--){if(state.busy[k]){state.work[k]=Math.max(0,state.work[k]-dt);if(state.work[k]===0){if(k<2&&state.queues[k]>=config.bufferSize){state.statuses[k]='blocked';continue}state.busy[k]=false;if(k===2){state.done++;state.history.push(state.seconds)}else state.queues[k]++;state.statuses[k]='waiting'}else state.statuses[k]='running'}if(!state.busy[k]){if(k<2&&state.queues[k]>=config.bufferSize){state.statuses[k]='blocked';continue}if(k>0&&state.queues[k-1]===0){state.statuses[k]='waiting';continue}if(k>0)state.queues[k-1]--;state.busy[k]=true;state.work[k]=3600/config.rates[k];state.statuses[k]='running'}}while(state.history.length&&state.history[0]<state.seconds-3600)state.history.shift()}
-function render(announceChange=false){config=read();keys.forEach(k=>{const suffix=k==='workers'?'':k==='downtime'?'%':k==='bufferSize'?' units':' units/hr';$(k+'V').textContent=config[k]+suffix});const animated=motion.checked&&state.running;$('app').classList.toggle('frozen',!animated);$('app').classList.toggle('high-contrast',$('contrast').checked);$('dataSection').hidden=!$('showTable').checked;$('runLabel').textContent=state.running?'Simulation running':'Simulation paused';$('pause').textContent=state.running?'Pause simulation':'Resume simulation';for(let i=0;i<3;i++){const status=state.statuses[i],st=stations[i];st.node.classList.toggle('running',state.running&&status==='running');st.node.classList.toggle('blocked',status==='blocked');st.node.classList.toggle('waiting',status==='waiting');st.label.textContent=capitalize(status);$('rate'+i).textContent=config.rates[i].toFixed(1)+'/hr';$('status'+i).textContent=state.running?capitalize(status):'Paused'}for(let i=0;i<2;i++){const count=state.queues[i],belt=belts[i];belt.label.textContent=count+' / '+config.bufferSize;belt.node.classList.toggle('active',animated&&count>0);belt.parts.forEach((el,j)=>el.hidden=j>=Math.min(5,count));$('queue'+i).textContent=count+' of '+config.bufferSize} $('completed').textContent=state.done;$('wip').textContent=state.queues.reduce((a,b)=>a+b,0)+state.busy.filter(Boolean).length;const mins=Math.floor(state.seconds/60);$('elapsed').textContent=Math.floor(mins/60)+':'+String(mins%60).padStart(2,'0');const windowSeconds=Math.min(3600,state.seconds);$('throughput').textContent=windowSeconds?Math.round(state.history.length*3600/windowSeconds):0;const min=Math.min(...config.rates),index=config.rates.indexOf(min);$('bottleneck').textContent=names[index]+' has the lowest effective capacity ('+min.toFixed(1)+' units/hour) and is the likely bottleneck.';const full=state.queues.map((n,i)=>n>=config.bufferSize?names[i]+' output buffer is full':'').filter(Boolean);const blocked=state.statuses.map((s,i)=>s==='blocked'?names[i]:'').filter(Boolean);const summary=full.length?full.join('; ')+'.': 'No buffers are full.';$('queueExplain').textContent=summary+(blocked.length?' Blocked: '+blocked.join(', ')+'.':'')+' Queues: '+state.queues[0]+' before Inspection, '+state.queues[1]+' before Packaging.';if(announceChange)announce('Likely bottleneck: '+names[index]+'. '+summary+(blocked.length?' Blocked stations: '+blocked.join(', ')+'.':''))}function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}function frame(now){const dt=Math.min((now-last)/1000,.25);last=now;if(state.running){state.acc+=dt*60;config=read();let count=0;while(state.acc>=.5&&count<30){simulate(.5);state.acc-=.5;count++}}if(now-lastRender>=150){render();lastRender=now}requestAnimationFrame(frame)}keys.forEach(k=>inputs[k].addEventListener('input',()=>render(true)));$('pause').addEventListener('click',()=>{state.running=!state.running;last=performance.now();render();announce(state.running?'Simulation resumed.':'Simulation paused.')});$('reset').addEventListener('click',reset);['motion','contrast','showTable'].forEach(k=>$(k).addEventListener('change',()=>render()));render(true);requestAnimationFrame(frame);
+(() => {
+  'use strict';
+
+  // Configuration and cached elements
+  const byId = (id) => document.getElementById(id);
+  const stationNames = ['Assembly', 'Inspection', 'Packaging'];
+  const sliderNames = ['assembly', 'inspection', 'packaging', 'bufferSize', 'workers', 'downtime'];
+  const sliders = Object.fromEntries(sliderNames.map((name) => [name, byId(name)]));
+  const outputs = Object.fromEntries(sliderNames.map((name) => [name, byId(`${name}V`)]));
+  const stationViews = stationNames.map((_, index) => {
+    const element = byId(`s${index}`);
+    return {
+      element,
+      status: element.querySelector('.station-status'),
+      rate: byId(`rate${index}`),
+      tableStatus: byId(`status${index}`)
+    };
+  });
+  const bufferViews = [0, 1].map((index) => {
+    const pieces = byId(`pieces${index}`);
+    const blocks = Array.from({ length: 5 }, () => {
+      const block = document.createElement('span');
+      block.className = 'piece';
+      pieces.append(block);
+      return block;
+    });
+    return {
+      belt: byId(`belt${index}`),
+      label: byId(`b${index}`),
+      tableQueue: byId(`queue${index}`),
+      blocks
+    };
+  });
+  const view = {
+    app: byId('app'), motion: byId('motion'), contrast: byId('contrast'),
+    showTable: byId('showTable'), dataSection: byId('dataSection'),
+    runLabel: byId('runLabel'), pause: byId('pause'), reset: byId('reset'),
+    completed: byId('completed'), wip: byId('wip'), throughput: byId('throughput'),
+    elapsed: byId('elapsed'), bottleneck: byId('bottleneck'),
+    queueExplain: byId('queueExplain'), announcements: byId('announcements')
+  };
+
+  // Ten real seconds represent one simulated minute, giving learners more time to observe.
+  const SIM_SECONDS_PER_REAL_SECOND = 6;
+  const STEP_SECONDS = 0.1;
+  const MAX_FRAME_SECONDS = 0.25;
+  const RENDER_INTERVAL_MS = 120;
+  const MIN_STATUS_DISPLAY_MS = 1800;
+  const MIN_PART_DISPLAY_MS = 1800;
+  const ANNOUNCEMENT_INTERVAL_MS = 5000;
+
+  const state = {
+    queues: [[], []], nextUnitId: 1, activeUnits: [null, null, null], remaining: [0, 0, 0], duration: [0, 0, 0], busy: [false, false, false],
+    statuses: ['waiting', 'waiting', 'waiting'], completed: 0,
+    elapsed: 0, completions: [], running: true, accumulator: 0
+  };
+  let settings;
+  let lastFrame = performance.now();
+  let lastRender = 0;
+  let lastAnnouncement = '';
+  let lastAnnouncedAt = -Infinity;
+  let lastImportantStatus = '';
+  const visualStatuses = ['waiting', 'waiting', 'waiting'];
+  const visualStatusChangedAt = [0, 0, 0];
+  const lastPartSeenAt = [0, 0];
+
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  view.motion.checked = !reducedMotion;
+
+  function readSettings() {
+    const values = Object.fromEntries(sliderNames.map((key) => [key, Number(sliders[key].value)]));
+    const factor = (values.workers / 3) * (1 - values.downtime / 100);
+    values.rates = [values.assembly, values.inspection, values.packaging]
+      .map((rate) => rate * factor);
+    return values;
+  }
+
+  function announce(message, force = false) {
+    const now = performance.now();
+    if (message === lastAnnouncement || (!force && now - lastAnnouncedAt < ANNOUNCEMENT_INTERVAL_MS)) return;
+    // Clearing first allows repeated announcements after a later status change.
+    view.announcements.textContent = message;
+    lastAnnouncement = message;
+    lastAnnouncedAt = now;
+  }
+
+  // Discrete processing: move finished parts downstream before starting new work.
+  // A completed part remains at its station when its output buffer is full.
+  function advance(seconds) {
+    state.elapsed += seconds;
+    for (let i = 2; i >= 0; i--) {
+      if (state.busy[i]) {
+        state.remaining[i] = Math.max(0, state.remaining[i] - seconds);
+        if (state.remaining[i] <= 0.000001) {
+          if (i < 2 && state.queues[i].length >= settings.bufferSize) {
+            state.statuses[i] = 'blocked';
+            continue;
+          }
+          state.busy[i] = false;
+          const finishedUnit = state.activeUnits[i];
+          state.activeUnits[i] = null;
+          if (i === 2) {
+            state.completed++;
+            state.completions.push(state.elapsed);
+          } else {
+            state.queues[i].push(finishedUnit);
+          }
+        }
+      }
+      if (!state.busy[i]) {
+        if (i < 2 && state.queues[i].length >= settings.bufferSize) {
+          state.statuses[i] = 'blocked';
+        } else if (i > 0 && state.queues[i - 1].length === 0) {
+          state.statuses[i] = 'waiting';
+        } else {
+          state.activeUnits[i] = i > 0 ? state.queues[i - 1].shift() : state.nextUnitId++;
+          state.busy[i] = true;
+          state.remaining[i] = 3600 / Math.max(settings.rates[i], 0.001);
+          state.duration[i] = state.remaining[i];
+          state.statuses[i] = 'running';
+        }
+      } else {
+        if (state.statuses[i] !== 'blocked') state.statuses[i] = 'running';
+      }
+    }
+    while (state.completions.length && state.completions[0] < state.elapsed - 3600) {
+      state.completions.shift();
+    }
+  }
+
+  function describeConditions() {
+    const minimum = Math.min(...settings.rates);
+    const limitingStation = settings.rates.indexOf(minimum);
+    const fullBuffers = state.queues.flatMap((queue, index) =>
+      queue.length >= settings.bufferSize ? [`${stationNames[index]} output buffer`] : []);
+    const blockedStations = state.statuses.flatMap((status, index) =>
+      status === 'blocked' ? [stationNames[index]] : []);
+    const fullText = fullBuffers.length
+      ? `Full buffers: ${fullBuffers.join(', ')}.` : 'Buffers have available space.';
+    const blockedText = blockedStations.length
+      ? ` Blocked stations: ${blockedStations.join(', ')}.` : '';
+    const maximum = Math.max(...settings.rates);
+    const balanced = maximum / Math.max(minimum, 0.01) <= 1.12;
+    return {
+      bottleneck: balanced
+        ? `The line is relatively balanced. Station capacities range from ${minimum.toFixed(1)} to ${maximum.toFixed(1)} units/hour. Try adjusting a station to explore how bottlenecks develop.`
+        : `${stationNames[limitingStation]} has the lowest effective capacity (${minimum.toFixed(1)} units/hour) and may become a bottleneck if demand exceeds that rate.`,
+      queue: `${fullText}${blockedText} Queues: ${state.queues[0].length} before Inspection, ${state.queues[1].length} before Packaging.`,
+      important: `${fullText}${blockedText}`
+    };
+  }
+
+  // Smoothly interpolate displayed metrics without changing simulation state.
+  const metricAnimations = Object.fromEntries(['completed', 'wip', 'throughput'].map(key =>
+    [key, { shown: 0, from: 0, target: 0, start: 0 }]));
+  function setMetricTarget(key, target) {
+    const item = metricAnimations[key];
+    if (item.target === target) return;
+    item.from = item.shown;
+    item.target = target;
+    item.start = performance.now();
+  }
+  function paintMetrics(now) {
+    const animate = view.motion.checked && !reducedMotion;
+    for (const [key, item] of Object.entries(metricAnimations)) {
+      const t = animate ? Math.min(1, (now - item.start) / 1250) : 1;
+      const eased = 1 - (1 - t) ** 3;
+      item.shown = item.from + (item.target - item.from) * eased;
+      const value = key === 'throughput' ? item.shown.toFixed(1) : String(Math.round(item.shown));
+      if (view[key].textContent !== String(value)) view[key].textContent = String(value);
+    }
+  }
+
+  function render() {
+    settings = readSettings();
+    sliderNames.forEach((key) => {
+      const unit = key === 'workers' ? '' : key === 'downtime' ? '%' : key === 'bufferSize' ? ' units' : ' units/hr';
+      outputs[key].textContent = `${settings[key]}${unit}`;
+    });
+
+    const animated = view.motion.checked && state.running;
+    view.app.classList.toggle('frozen', !animated);
+    view.app.classList.toggle('high-contrast', view.contrast.checked);
+    view.dataSection.hidden = !view.showTable.checked;
+    view.runLabel.textContent = state.running ? 'Simulation running' : 'Simulation paused';
+    view.pause.textContent = state.running ? 'Pause simulation' : 'Resume simulation';
+
+    const visualNow = performance.now();
+    stationViews.forEach((station, index) => {
+      const actualStatus = state.statuses[index];
+      if (actualStatus !== visualStatuses[index] && visualNow - visualStatusChangedAt[index] >= MIN_STATUS_DISPLAY_MS) {
+        visualStatuses[index] = actualStatus;
+        visualStatusChangedAt[index] = visualNow;
+      }
+      const status = visualStatuses[index];
+      station.element.classList.toggle('running', state.running && status === 'running');
+      station.element.classList.toggle('has-unit', state.busy[index]);
+      const unit = station.element.querySelector('.in-process-unit');
+      unit.title = state.activeUnits[index] == null ? '' : `Unit ${state.activeUnits[index]} being processed`;
+      unit.dataset.unit = state.activeUnits[index] ?? '';
+      // The marker traverses the station in proportion to real processing progress.
+      // A blocked finished unit remains at the right edge until it can transfer.
+      const duration = state.duration[index] || 1;
+      const progress = state.busy[index] ? Math.max(0, Math.min(1, 1 - state.remaining[index] / duration)) : 0;
+      // Position is updated every animation frame, independently of the motion toggle.
+      station.element.classList.toggle('blocked', status === 'blocked');
+      station.element.classList.toggle('waiting', status === 'waiting');
+      station.status.textContent = status[0].toUpperCase() + status.slice(1);
+      station.rate.textContent = `${settings.rates[index].toFixed(1)}/hr`;
+      station.tableStatus.textContent = state.running ? actualStatus[0].toUpperCase() + actualStatus.slice(1) : 'Paused';
+    });
+    bufferViews.forEach((buffer, index) => {
+      const count = state.queues[index].length;
+      if (count > 0) lastPartSeenAt[index] = visualNow;
+      const visibleCount = count;
+      buffer.label.textContent = `${count} / ${settings.bufferSize}`;
+      buffer.tableQueue.textContent = `${count} of ${settings.bufferSize}`;
+      buffer.belt.classList.toggle('active', animated && visibleCount > 0);
+      buffer.blocks.forEach((block, blockIndex) => {
+        block.hidden = blockIndex >= Math.min(5, visibleCount);
+        block.title = block.hidden ? '' : `Unit ${state.queues[index][blockIndex]}`;
+      });
+    });
+
+    setMetricTarget('completed', state.completed);
+    setMetricTarget('wip', state.queues[0].length + state.queues[1].length + state.busy.filter(Boolean).length);
+    const totalMinutes = Math.floor(state.elapsed / 60);
+    view.elapsed.textContent = `${Math.floor(totalMinutes / 60)}:${String(totalMinutes % 60).padStart(2, '0')}`;
+    view.elapsed.setAttribute('aria-label', `${Math.floor(totalMinutes / 60)} hours, ${totalMinutes % 60} minutes`);
+    // Ideal steady-state projection: the slowest effective station constrains
+    // a continuously supplied serial line. This is not observed throughput.
+    setMetricTarget('throughput', Math.min(...settings.rates));
+    const description = describeConditions();
+    view.bottleneck.textContent = description.bottleneck;
+    view.queueExplain.textContent = description.queue;
+
+    // Announce only meaningful changes, never every frame or every numeric update.
+    if (state.running && description.important !== lastImportantStatus) {
+      lastImportantStatus = description.important;
+      if (description.important.includes('Full buffers:') || description.important.includes('Blocked stations:')) {
+        announce(description.important);
+      }
+    }
+  }
+
+  function reset() {
+    state.queues = [[], []];
+    state.activeUnits = [null, null, null];
+    state.nextUnitId = 1;
+    state.remaining = [0, 0, 0];
+    state.duration = [0, 0, 0];
+    state.busy = [false, false, false];
+    state.statuses = ['waiting', 'waiting', 'waiting'];
+    state.completed = 0;
+    state.elapsed = 0;
+    state.completions = [];
+    state.accumulator = 0;
+    visualStatuses.fill('waiting');
+    visualStatusChangedAt.fill(0);
+    lastPartSeenAt.fill(0);
+    lastImportantStatus = '';
+    lastFrame = performance.now();
+    render();
+    paintUnitPositions();
+    for (const item of Object.values(metricAnimations)) { item.from = item.target; item.shown = item.target; }
+    paintMetrics(performance.now() + 500);
+    lastAnnouncement = '';
+    announce('Simulation reset. All queues and completed counts are zero.', true);
+  }
+
+  // Use the fractional fixed-step accumulator to interpolate each unit smoothly
+  // between physics updates. This is independent of decorative animation settings.
+  function paintUnitPositions() {
+    stationViews.forEach((station, index) => {
+      const unit = station.element.querySelector('.in-process-unit');
+      if (!state.busy[index]) {
+        unit.style.left = '14%';
+        return;
+      }
+      const duration = state.duration[index] || 1;
+      const interpolatedRemaining = Math.max(0, state.remaining[index] - (state.running ? state.accumulator : 0));
+      const progress = Math.max(0, Math.min(1, 1 - interpolatedRemaining / duration));
+      unit.style.left = `${14 + progress * 72}%`;
+    });
+  }
+
+  function frame(now) {
+    const delta = Math.min((now - lastFrame) / 1000, MAX_FRAME_SECONDS);
+    lastFrame = now;
+    if (state.running) {
+      settings = readSettings();
+      state.accumulator += delta * SIM_SECONDS_PER_REAL_SECOND;
+      // Fixed steps prevent frame rate from changing the simulation results.
+      while (state.accumulator >= STEP_SECONDS) {
+        advance(STEP_SECONDS);
+        state.accumulator -= STEP_SECONDS;
+      }
+    }
+    if (now - lastRender >= RENDER_INTERVAL_MS) {
+      render();
+      lastRender = now;
+    }
+    paintMetrics(now);
+    paintUnitPositions();
+    requestAnimationFrame(frame);
+  }
+
+  sliderNames.forEach((key) => sliders[key].addEventListener('input', () => {
+    render();
+    const description = describeConditions();
+    announce(`Settings changed. ${description.bottleneck}`);
+  }));
+  view.pause.addEventListener('click', () => {
+    state.running = !state.running;
+    lastFrame = performance.now();
+    render();
+    announce(state.running ? 'Simulation resumed.' : 'Simulation paused.', true);
+  });
+  view.reset.addEventListener('click', reset);
+  [view.motion, view.contrast, view.showTable].forEach((control) =>
+    control.addEventListener('change', render));
+  document.addEventListener('visibilitychange', () => {
+    // Avoid large time jumps after switching back from another browser tab.
+    lastFrame = performance.now();
+  });
+
+  render();
+  paintUnitPositions();
+  paintMetrics(performance.now() + 500);
+  requestAnimationFrame(frame);
 })();
 </script></body></html>
